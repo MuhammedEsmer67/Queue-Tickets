@@ -1,10 +1,10 @@
 #pragma once
 #include <iostream>
+#include <string>
 #include <queue>
 #include <stack>
 #include "clsDate.h"
 #include "clsUtility.h"
-using namespace std;
 
 class clsQueueLine
 {
@@ -20,39 +20,35 @@ private:
 
 		string _Prefix;
 		short _TreatmentTime;
-		short _TicketNO;
+		int _TicketNO;
 		string _Date;
-		short _WaitingClients;
 
 	public:
 
-		clsTicket(string Prefix, short TreatmentTime, short TicketNO, short WaitingClients)
+		clsTicket(string Prefix, short TreatmentTime, int TicketNO)
 		{
 			_Prefix = Prefix;
 			_TreatmentTime = TreatmentTime;
 			_TicketNO = TicketNO;
 			_Date = clsDate::GetSystemDateTime();
-			_WaitingClients = WaitingClients;
 		}
 
-		short getTicketNO() { return _TicketNO; }
+		const string GetTicketCode() const { return _Prefix + to_string(_TicketNO); }
 
-		string GetTicketCode() { return _Prefix + to_string(_TicketNO); }
+		short GetServeTime(short Position) const { return Position * _TreatmentTime; }
 
-		short GetServeTime() { return _WaitingClients * _TreatmentTime; }
-
-		void PrintTicket()
+		void PrintTicket(short Position) const
 		{
 			cout << clsUtility::Tabs(6) << "                  " << _Prefix << _TicketNO << endl << endl;
 			cout << clsUtility::Tabs(6) << "         " << _Date << endl;
-			cout << clsUtility::Tabs(6) << "         Waiting Clients = " << _WaitingClients << endl;
+			cout << clsUtility::Tabs(6) << "         Waiting Clients = " << Position << endl;
 			cout << clsUtility::Tabs(6) << "            Serve Time in\n";
-			cout << clsUtility::Tabs(6) << "             " << GetServeTime() << " Minutes.\n";
+			cout << clsUtility::Tabs(6) << "             " << GetServeTime(Position) << " Minutes.\n";
 		}
 
 	};
 
-	short _GetServedClients() { return _TotalTickets - _Line.size(); }
+	int _GetServedClients() const { return _TotalTickets - static_cast<int>(_Line.size()); }
 
 	queue <clsTicket> _Line;
 
@@ -61,18 +57,19 @@ public:
 	clsQueueLine(string Prefix, short TreatmentTime)
 	{
 		_Prefix = Prefix;
-		_TreatmentTime = TreatmentTime;
+		_TreatmentTime = (TreatmentTime > 0) ? TreatmentTime : 3;
+		_TotalTickets = 0;
 	}
 
 	void IssueTicket()
 	{
 		_TotalTickets++;
-		clsTicket Ticket(_Prefix, _TreatmentTime, _TotalTickets, _Line.size());
+		clsTicket Ticket(_Prefix, _TreatmentTime, _TotalTickets);
 
 		_Line.push(Ticket);
 	}
 
-	void PrintInfo()
+	void PrintInfo() const
 	{
 		cout << endl << clsUtility::Tabs(6) << "____________________________________\n\n";
 		cout << clsUtility::Tabs(6) << "             Queue Info";
@@ -86,7 +83,7 @@ public:
 		cout << endl << clsUtility::Tabs(6) << "____________________________________\n\n";
 	}
 
-	void PrintTicketsLineRToL()
+	void PrintTicketsLineRToL() const
 	{
 		if (_Line.empty())
 		{
@@ -99,7 +96,7 @@ public:
 
 		cout << "Tickets: ";
 
-		for (short i = 1; i <= _Line.size(); i++)
+		while(!Line.empty())
 		{
 			TicketCode = Line.front().GetTicketCode();
 			Line.pop();
@@ -110,7 +107,7 @@ public:
 		cout << endl;
 	}
 
-	void PrintTicketsLineLToR()
+	void PrintTicketsLineLToR() const
 	{
 		if (_Line.empty())
 		{
@@ -122,7 +119,7 @@ public:
 		queue <clsTicket> Line = _Line;
 		string TicketCode = "";
 
-		for (short i = 1; i <= _Line.size(); i++)
+		while (!Line.empty())
 		{
 			TicketCode = Line.front().GetTicketCode();
 			sTicketCodes.push(TicketCode);
@@ -131,7 +128,7 @@ public:
 
 		cout << "Tickets: ";
 
-		for (short i = 1; i <= _Line.size(); i++)
+		while (!sTicketCodes.empty())
 		{
 			cout << sTicketCodes.top() << " --> ";
 			sTicketCodes.pop();
@@ -140,40 +137,44 @@ public:
 		cout << endl;
 	}
 
-	void PrintAllTickets()
+	void PrintAllTickets() const
 	{
-		cout << endl << clsUtility::Tabs(6) << "            ___Tickets___";
-
 		if (_Line.empty())
 		{
-			cout << endl << clsUtility::Tabs(6) << "No avalaible tickets.\n";
+			cout << endl << clsUtility::Tabs(6) << "____________________________________\n\n";
+			cout << clsUtility::Tabs(6) << "       No available tickets.\n";
+			cout << clsUtility::Tabs(6) << "____________________________________\n\n";
 			return;
 		}
 
-		queue <clsTicket> Line = _Line;
+		cout << endl << clsUtility::Tabs(6) << "            ___Tickets___";
 
-		for (short i = 1; i <= _Line.size(); i++)
+		queue <clsTicket> Line = _Line;
+		short Position = 0;
+
+		while (!Line.empty())
 		{
 			cout << endl << clsUtility::Tabs(6) << "____________________________________\n\n";
-			Line.front().PrintTicket();
+			Line.front().PrintTicket(Position++);
 			cout << clsUtility::Tabs(6) << "____________________________________\n\n";
 
 			Line.pop();
 		}
 	}
 
-	void ServeNextClient()  
+	bool ServeNextClient()  
 	{ 
 		if (_Line.empty())
-			return;
+			return false;
 
 		_Line.pop();
+		return true;
 	}
 
-	string WhoIsNext()
+	string WhoIsNext() const
 	{
 		if (_Line.empty())
-			return "No Clients Left.\n";
+			return "";
 		
 		return _Line.front().GetTicketCode();
 	}
