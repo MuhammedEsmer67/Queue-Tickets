@@ -141,17 +141,20 @@ Next: A1
 
 ---
 
-## Build and Run
+## Build and run
 
-For Visual Studio 2022/2026:
-1. Clone the repository
-2. Open `QueueTickets.sln` in Visual Studio 2022/2026
-3. Build the solution (Ctrl + Shift + B)
-4. Run the project (F5)
+### Visual Studio 2022 Community
 
-For Visual Studio Code:
-```powershell
-cd QueueTickets
-g++ -std=c++17 main.cpp -o queue-tickets
-.\queue-tickets
+1. Install Visual Studio Community with the **Desktop development with C++** workload.
+2. Clone the repo: `git clone https://github.com/MuhammedEsmer67/ATM-System.git`
+3. Open the project:
+   - If the repo contains a `.sln` file, double-click it.
+   - Otherwise: **File > New > Project > Console App (C++)**, then in Solution Explorer right-click **Source Files > Add > Existing Item** and add `main.cpp`; do the same for `clsDblLinkedList.h` under **Header Files**. Remove the auto-generated `.cpp` file.
+4. Press **Ctrl + F5** (Start Without Debugging). A console window shows the output.
+
+### PowerShell (g++)
+
+```
+g++ -std=c++17 main.cpp -o QueueTickets
+.\QueueTickets
 ```
