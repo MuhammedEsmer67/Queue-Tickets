@@ -153,6 +153,7 @@ Next: A1
 ### PowerShell (g++)
 
 ```
+cd QueueTickets
 g++ -std=c++17 main.cpp -o QueueTickets
 .\QueueTickets
 ```
